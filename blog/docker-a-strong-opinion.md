@@ -25,61 +25,63 @@ to use, difficult to use correctly.
 
 ## Disclaimer
 
-While the following text might sound very negative against docker/containers, I
-do actually believe there is a time and place to use them. I also realise that a
-lot the remarks are probably based on bad experiences with environments that do
-not follow best practices in containerisation.
+While the following text might sound very negative against docker, I do actually
+believe there is a time and place to use it (and containers in general). I also
+realise that a lot the remarks are probably based on bad experiences with
+environments that do not follow best practices in containerisation.
 
 Which is somewhat the point I attempt to make, containers are sometimes seen as
-"easy" solutions, which lead to a lot of frustrations with containers. I just
-want to urge that when considering containers for services, to do research and
-implement best practices.
+"easy" solutions, which they in my opinion are not. Some research and
+consideration is required when deciding whether or not to use containers.
 
-Anyways, here are the remarks I always make about containers when asked if they
-are a good choice for something.
+Below is a compilation of remarks that I have on containers, more specifically
+docker.
 
 ## Remarks
 
-### Containers are not a silver bullet to have "know states"
+### Containers don't remove the need for systems knowledge
 
-TODO: this should be rewritten a bit to sound less aggressive and focus more on
-that using docker containers does not mean that no config management or system
-knowledge is required. I'd argue quite the opposite.
+Containers are seen as solutions so that people don't need to do the "systems"
+stuff that comes along with running applications on servers. They are seen and
+advertised as solution to easily run applications on any system without needing
+to think about the system when programming. While they do accomplish this in
+some way, solid systems knowledge is still required to operate containers in
+production.
 
-People ofter raise docker as the solution for state on there server. They think
-they can put their program in a docker container and run it everywhere, which in
-some way, is what docker promises. So people go along, jamming all kinds of
-things in containers, thinking that these things will magically work everywhere.
+Whether you are using lxc or docker, both engines are incredibly versatile and
+powerfull. They all come with a massive amounts of customisation, and that's
+without starting a container. You can set up container volumes, networks,
+permissions, namespaces, ... in which containers can be deployed. This makes it
+so while the containers might remove the thought of how the application is run,
+assuming every container host is the same is just wrong.
 
-And then it doesn't. Suddenly that site that is completely jammed in a docker
-doesn't work anymore and the dev has long left the company. This is a problem
-because the runtime settings might have been badly documented, but in my
-experience the same issue arises as with Ansible: the Dockerfile becomes the
-documentation and issues go from "issue X occured" to "this container doesn't
-run".
+And then there are containers orchestrators like proxmox, kubernetes, docker
+swarm, ... which even complicate these systems even more. There is also
+something to be said that while some of the system knowledge is abstracted away
+by using containers, this is easily replaced by having to keep up to date with
+container best practices.
+
+An example from personal experience is the container networking. I can build an
+application just fine locally, but when attempting to download the same
+dependencies in a docker container, for some reason the build tool can't reach
+the internet (the quick fix here is the `--network=host` flag).
 
 ### Containers their simplicity is in their complexity
 
-TODO: don't think that this post covers the complexity of docker itself enough.
-There should be coverage over how volumes, docker networks, file permissions,
-... are all manageable by docker, but that it gets very complex if you need to
-set all these things
-
-Docker in itself is a complex thing with many parameters to tweak to the users
-desires. Not every docker is the same, and not every docker host is the same.
+I touched on it before, these container frameworks are incredibly complex in
+their setup.Not every docker is the same, and not every docker host is the same.
 Orchestrators amplify these complexities by an order of magnitude. Look at the
 sizes of some Kubernetes manifest, they are incredibly dense with information
-and parameters. [1](https://plumbr.io/blog/java/oomkillers-in-docker-are-more-complex-than-you-thought)
+and parameters.
 
 Sometimes when the container and host filesystem have a disagreement about the
 permissions of volumes. Other times the network of the host doesn't seem to
-agree. I have plenty of colleagues that need to run `--network=host` sometimes
-to quickly debug things. Some containers require specific runtimes or system
-permissions to run. Which brings me to the next point ...
+agree. Some containers require specific runtimes or system permissions to run.
+Which brings me to the next point ...
 
 ### Containers have security concerns
 
-Docker themselves raise several remakrs about the [docker engine
+Docker has an entire page  about the [docker engine
 security](https://docs.docker.com/engine/security/) threat model. Let alone that
 most people don't go through the trouble of actually figuring out what
 permissions the containers need to function correctly and use the shotgun
@@ -92,9 +94,6 @@ are out there, running on k8s clusters all over the world, silently mining and
 allocating resources to botnets.
 
 ### Lightweight containers are not always performant
-
-TODO: not sure about the wording here. Maybe this should be focussed more on the
-fact that people see docker for seperation more so then performance?
 
 There is somehow the believe that containers are "lightweight". They contain
 only the libraries and binaries (or they should) that are needed to run your
@@ -111,7 +110,8 @@ resource usage and [limits on
 these](https://docs.docker.com/config/containers/resource_constraints/), a
 docker container is just as dangerous as a rampant piece of software on a normal
 host. A single service running in a container can just as easily break the host
-when it starts eating memory or cpu.
+when it starts eating memory or cpu, so using containers for "seperation" seems
+like a mood argument for me.
 
 ### A lot of the time development != production
 
